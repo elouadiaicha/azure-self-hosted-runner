@@ -1,0 +1,23 @@
+name: Test Self-Hosted Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show runner information
+        run: |
+          echo "=== Self-hosted runner Azure ==="
+          hostname
+          whoami
+          uname -a
+
+      - name: Test runner
+        run: |
+          echo "Le workflow fonctionne sur le runner Azure !"
