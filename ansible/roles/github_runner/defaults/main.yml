@@ -1,0 +1,11 @@
+---
+github_runner_user: "azureuser"
+github_runner_dir: "/home/{{ github_runner_user }}/actions-runner"
+
+github_repo_owner: "elouadiaicha"
+github_repo_name: "azure-self-hosted-runner"
+
+github_runner_name: "azure-self-hosted-runner"
+github_runner_labels: "azure,linux"
+
+github_runner_version: "2.337.0"

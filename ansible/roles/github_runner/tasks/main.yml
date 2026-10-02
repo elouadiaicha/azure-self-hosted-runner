@@ -1,0 +1,72 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - git
+      - tar
+    state: present
+    update_cache: true
+
+- name: Create GitHub Actions runner directory
+  ansible.builtin.file:
+    path: "{{ github_runner_dir }}"
+    state: directory
+    owner: "{{ github_runner_user }}"
+    group: "{{ github_runner_user }}"
+    mode: "0755"
+
+- name: Download GitHub Actions runner
+  ansible.builtin.get_url:
+    url: "https://github.com/actions/runner/releases/download/v{{ github_runner_version }}/actions-runner-linux-x64-{{ github_runner_version }}.tar.gz"
+    dest: "/tmp/actions-runner.tar.gz"
+    mode: "0644"
+
+- name: Extract GitHub Actions runner
+  ansible.builtin.unarchive:
+    src: "/tmp/actions-runner.tar.gz"
+    dest: "{{ github_runner_dir }}"
+    remote_src: true
+    owner: "{{ github_runner_user }}"
+    group: "{{ github_runner_user }}"
+    creates: "{{ github_runner_dir }}/config.sh"
+
+- name: Install GitHub Actions runner dependencies
+  ansible.builtin.command:
+    cmd: "./bin/installdependencies.sh"
+    chdir: "{{ github_runner_dir }}"
+  changed_when: false
+
+- name: Check whether runner is already configured
+  ansible.builtin.stat:
+    path: "{{ github_runner_dir }}/.runner"
+  register: runner_config
+
+- name: Configure GitHub Actions runner
+  ansible.builtin.command:
+    cmd: >
+      ./config.sh
+      --unattended
+      --url https://github.com/{{ github_repo_owner }}/{{ github_repo_name }}
+      --token {{ github_runner_token }}
+      --name {{ github_runner_name }}
+      --labels {{ github_runner_labels }}
+      --work _work
+    chdir: "{{ github_runner_dir }}"
+  become: false
+  become_user: "{{ github_runner_user }}"
+  when: not runner_config.stat.exists
+  no_log: true
+
+- name: Install runner as a service
+  ansible.builtin.command:
+    cmd: "./svc.sh install {{ github_runner_user }}"
+    chdir: "{{ github_runner_dir }}"
+  args:
+    creates: "/etc/systemd/system/actions.runner.{{ github_repo_owner }}-{{ github_repo_name }}.{{ github_runner_name }}.service"
+
+- name: Start runner service
+  ansible.builtin.command:
+    cmd: "./svc.sh start"
+    chdir: "{{ github_runner_dir }}"
+  changed_when: false
