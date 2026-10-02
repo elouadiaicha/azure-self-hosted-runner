@@ -102,7 +102,7 @@ resource "azurerm_linux_virtual_machine" "runner" {
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
 
-  size           = "Standard_B2s"
+  size           = "Standard_D2s_v3"
   admin_username = var.admin_username
 
   network_interface_ids = [
