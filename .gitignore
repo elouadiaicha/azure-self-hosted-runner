@@ -1,0 +1,23 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+
+# Variables potentiellement sensibles
+*.tfvars
+!*.tfvars.example
+
+# SSH keys
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# Ansible
+*.retry
+
+# IDE / OS
+.vscode/
+.DS_Store
