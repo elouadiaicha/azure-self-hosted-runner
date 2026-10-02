@@ -7,6 +7,14 @@ terraform {
       version = "~> 4.0"
     }
   }
+
+  backend "azurerm" {
+    resource_group_name  = "aelouadiRG"
+    storage_account_name = "staelouaditfstate"
+    container_name       = "tfstate"
+    key                  = "self-hosted-runner.tfstate"
+    use_azuread_auth     = true
+  }
 }
 
 provider "azurerm" {
